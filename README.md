@@ -16,6 +16,14 @@ A collection of reusable Terraform modules for Microsoft Azure.
       - [Outputs](#outputs)
       - [Usage](#usage)
       - [Examples](#examples)
+    - [terraform-azurerm-get-keyvault-secret](#terraform-azurerm-get-keyvault-secret)
+      - [Overview](#overview-1)
+      - [How It Works](#how-it-works-1)
+      - [Requirements](#requirements-1)
+      - [Inputs](#inputs-1)
+      - [Outputs](#outputs-1)
+      - [Usage](#usage-1)
+      - [Examples](#examples-1)
 
 ---
 
@@ -173,6 +181,141 @@ module "vnets_in_region" {
   type      = "microsoft.network/virtualnetworks"
   location  = "northeurope"
   return_attributes = ["id", "name", "location"]
+}
+```
+
+#### terraform-azurerm-get-keyvault-secret
+
+**Path:** `azure/terraform-azurerm-get-keyvault-secret`
+
+##### Overview
+
+This module retrieves a secret value from an Azure Key Vault. It accepts multiple ways to identify the target Key Vault — by resource ID, by resource group and name, or by tags — resolving them in priority order so callers can use whichever identifier is most convenient.
+
+##### How It Works
+
+The module resolves the Key Vault ID using the following priority order:
+
+```
+ key_vault_id provided?
+        │ yes → use directly
+        │ no
+        ▼
+ key_vault_resource_group_and_name provided?
+        │ yes → construct ID from subscription + resource group + name
+        │ no
+        ▼
+ look up Key Vault by tags
+ (delegates to terraform-azapi-get-resources)
+        │
+        ▼
+ azurerm_key_vault_secret (data source)
+        │
+        ▼
+   output: value
+```
+
+Once the Key Vault ID is resolved, the module fetches the named secret using the `azurerm_key_vault_secret` data source.
+
+##### Requirements
+
+| Name | Version |
+|------|---------|
+| terraform | >= 1.0 |
+| [hashicorp/azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest) | ~> 4.74 |
+
+##### Inputs
+
+| Name | Type | Default | Required | Description |
+|------|------|---------|----------|-------------|
+| `secret_name` | `string` | — | **yes** | The name of the Key Vault secret to retrieve. |
+| `key_vault_id` | `string` | `""` | no | The full Azure resource ID of the Key Vault. Takes priority over all other Key Vault identifiers. |
+| `key_vault_resource_group_and_name` | `string` | `""` | no | Resource group and Key Vault name in `resource-group/name` format (e.g. `my-rg/my-keyvault`). Used when `key_vault_id` is not provided. |
+| `key_vault_tags` | `map(string)` | `{}` | no | Map of tag key/value pairs to locate the Key Vault when neither `key_vault_id` nor `key_vault_resource_group_and_name` is provided. |
+
+##### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `keyvault_id` | `string` | The resolved resource ID of the Key Vault. |
+| `value` | `string` (sensitive) | The value of the retrieved secret. |
+
+##### Usage
+
+```hcl
+module "get_keyvault_secret" {
+  source = "path/to/azure/terraform-azurerm-get-keyvault-secret"
+
+  secret_name  = "my-secret"
+
+  # Option 1: provide the Key Vault resource ID directly
+  key_vault_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.KeyVault/vaults/my-keyvault"
+
+  # Option 2: provide resource group and name
+  # key_vault_resource_group_and_name = "my-rg/my-keyvault"
+
+  # Option 3: locate by tags
+  # key_vault_tags = {
+  #   Environment = "prod"
+  #   Team        = "platform"
+  # }
+}
+
+output "secret_value" {
+  value     = module.get_keyvault_secret.value
+  sensitive = true
+}
+```
+
+##### Examples
+
+A runnable example is provided under `examples/azure/terraform-azurerm-get-keyvault-secret/`.
+
+**Retrieve a secret by Key Vault resource ID**
+
+```hcl
+module "get_key_vault_secret" {
+  source       = "../../../azure/terraform-azurerm-get-keyvault-secret"
+  secret_name  = "my-secret"
+  key_vault_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.KeyVault/vaults/my-keyvault"
+}
+
+output "key_vault_secret_value" {
+  value     = module.get_key_vault_secret.value
+  sensitive = true
+}
+```
+
+**Retrieve a secret by resource group and Key Vault name**
+
+```hcl
+module "get_key_vault_secret" {
+  source                            = "../../../azure/terraform-azurerm-get-keyvault-secret"
+  secret_name                       = "my-secret"
+  key_vault_resource_group_and_name = "my-rg/my-keyvault"
+}
+
+output "key_vault_secret_value" {
+  value     = module.get_key_vault_secret.value
+  sensitive = true
+}
+```
+
+**Retrieve a secret from a Key Vault located by tags**
+
+```hcl
+module "get_key_vault_secret" {
+  source      = "../../../azure/terraform-azurerm-get-keyvault-secret"
+  secret_name = "my-secret"
+  key_vault_tags = {
+    Environment = "prod"
+    Team        = "platform"
+  }
+}
+
+output "key_vault_secret_value" {
+  value     = module.get_key_vault_secret.value
+  sensitive = true
 }
 ```
 
