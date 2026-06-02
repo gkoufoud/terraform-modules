@@ -24,6 +24,13 @@ A collection of reusable Terraform modules for Microsoft Azure.
       - [Outputs](#outputs-1)
       - [Usage](#usage-1)
       - [Examples](#examples-1)
+    - [terraform-azurerm-managed-identity](#terraform-azurerm-managed-identity)
+      - [Overview](#overview-2)
+      - [Requirements](#requirements-2)
+      - [Inputs](#inputs-2)
+      - [Outputs](#outputs-2)
+      - [Usage](#usage-2)
+      - [Examples](#examples-2)
 
 ---
 
@@ -316,6 +323,124 @@ module "get_key_vault_secret" {
 output "key_vault_secret_value" {
   value     = module.get_key_vault_secret.value
   sensitive = true
+}
+```
+
+#### terraform-azurerm-managed-identity
+
+**Path:** `azure/terraform-azurerm-managed-identity`
+
+##### Overview
+
+This module creates an Azure [User-Assigned Managed Identity](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview) and optionally attaches one or more [Federated Identity Credentials](https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation) to it. Federated credentials allow workloads running outside Azure (e.g. Kubernetes pods via AKS OIDC) to authenticate as the managed identity without managing secrets.
+
+##### Requirements
+
+| Name | Version |
+|------|--------|
+| terraform | >= 1.0 |
+| [hashicorp/azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest) | ~> 4.74 |
+
+##### Inputs
+
+| Name | Type | Default | Required | Description |
+|------|------|---------|----------|-------------|
+| `name` | `string` | — | **yes** | The name of the managed identity. Must be at least 4 characters long. |
+| `resource_group_name` | `string` | — | **yes** | The name of the resource group in which to create the managed identity. Must be at least 4 characters long. |
+| `location` | `string` | `"uksouth"` | no | The Azure region in which to create the managed identity. |
+| `tags` | `map(string)` | `{}` | no | A map of tags to assign to the managed identity. |
+| `federated_identity_credentials` | `list(object)` | `[]` | no | A list of federated identity credentials to attach to the managed identity. Each object has the following fields: `name` (string), `issuer` (string), `namespace` (string), `service_account_name` (string), and optional `audience` (list of strings, defaults to `["api://AzureADTokenExchange"]`). |
+
+##### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `managed_identity` | `object` | The full `azurerm_user_assigned_identity` resource object. Useful attributes include `.id`, `.principal_id`, and `.client_id`. |
+| `federated_identity_credentials` | `map(object)` | A map of the created `azurerm_federated_identity_credential` resource objects, keyed by credential name. Empty when no federated credentials are configured. |
+
+##### Usage
+
+```hcl
+module "managed_identity" {
+  source = "path/to/azure/terraform-azurerm-managed-identity"
+
+  name                = "my-managed-identity"
+  resource_group_name = "my-resource-group"
+  location            = "uksouth"
+  tags = {
+    environment = "prod"
+  }
+
+  # Optional: attach federated identity credentials
+  federated_identity_credentials = [
+    {
+      name                 = "my-federated-credential"
+      issuer               = "https://oidc.example.com/"
+      namespace            = "default"
+      service_account_name = "my-service-account"
+    }
+  ]
+}
+
+output "managed_identity_id" {
+  value = module.managed_identity.managed_identity.id
+}
+
+output "managed_identity_client_id" {
+  value = module.managed_identity.managed_identity.client_id
+}
+```
+
+##### Examples
+
+A runnable example is provided under `examples/azure/terraform-azurerm-managed-identity/`.
+
+**Create a managed identity without federated credentials**
+
+```hcl
+module "managed_identity_example" {
+  source              = "../../../azure/terraform-azurerm-managed-identity"
+  name                = "example-managed-identity"
+  resource_group_name = "example-resource-group"
+  location            = "uksouth"
+  tags = {
+    environment = "prod"
+  }
+}
+
+output "managed_identity_example_id" {
+  value = module.managed_identity_example.managed_identity.id
+}
+```
+
+**Create a managed identity with an AKS federated identity credential**
+
+```hcl
+data "azurerm_kubernetes_cluster" "example" {
+  name                = "my-aks-cluster"
+  resource_group_name = "example-resource-group"
+}
+
+module "managed_identity_fc_example" {
+  source              = "../../../azure/terraform-azurerm-managed-identity"
+  name                = "example-managed-identity-fc"
+  resource_group_name = "example-resource-group"
+  location            = "uksouth"
+  tags = {
+    environment = "prod"
+  }
+  federated_identity_credentials = [
+    {
+      name                 = "example-federated-credential"
+      issuer               = data.azurerm_kubernetes_cluster.example.oidc_issuer_url
+      namespace            = "default"
+      service_account_name = "example-service-account"
+    }
+  ]
+}
+
+output "managed_identity_fc_example_id" {
+  value = module.managed_identity_fc_example.managed_identity.id
 }
 ```
 

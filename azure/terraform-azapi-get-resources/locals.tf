@@ -1,7 +1,7 @@
 locals {
   api_versions = jsondecode(file("${path.module}/${var.api_versions_file}"))
 
-# The regex matches the start (^), grabs everything that isn't a slash into 'provider', 
+  # The regex matches the start (^), grabs everything that isn't a slash into 'provider', 
   # matches the first slash, and grabs everything else into 'resource_type' ($)
   parsed = regex("^(?P<provider>[^/]+)/(?P<resource_type>.+)$", lower(var.type))
 
@@ -24,8 +24,8 @@ locals {
   ]
 
   resources_after_location = [
-      for resource in local.resources_after_tags :
-      resource if var.location == "" || lookup(resource, "location", "") == var.location
+    for resource in local.resources_after_tags :
+    resource if var.location == "" || lookup(resource, "location", "") == var.location
   ]
 
   return_attributes = length(var.return_attributes) > 0 ? jsonencode(var.return_attributes) : jsonencode(distinct(flatten([
@@ -36,9 +36,9 @@ locals {
   resources_with_attribute_filter = [
     for resource in local.resources_after_location :
     {
-        # for attr in var.return_attributes :
-        for attr in jsondecode(local.return_attributes) :
-        attr => lookup(resource, attr, null)
+      # for attr in var.return_attributes :
+      for attr in jsondecode(local.return_attributes) :
+      attr => lookup(resource, attr, null)
     }
   ]
 }
