@@ -38,6 +38,13 @@ A collection of reusable Terraform modules for Microsoft Azure.
       - [Outputs](#outputs-3)
       - [Usage](#usage-3)
       - [Examples](#examples-3)
+    - [terraform-azurerm-resource-name-validation](#terraform-azurerm-resource-name-validation)
+      - [Overview](#overview-4)
+      - [Requirements](#requirements-4)
+      - [Inputs](#inputs-4)
+      - [Outputs](#outputs-4)
+      - [Usage](#usage-4)
+      - [Examples](#examples-4)
 
 ---
 
@@ -523,6 +530,84 @@ module "aks_lock" {
 
 output "aks_lock_id" {
   value = module.aks_lock.lock.id
+}
+```
+
+#### terraform-azurerm-resource-name-validation
+
+**Path:** `azure/terraform-azurerm-resource-name-validation`
+
+##### Overview
+
+This module validates an Azure resource name against the naming rules for a given resource type. It enforces Azure's naming conventions including character restrictions, length limits, and pattern constraints. The module supports 30+ Azure resource types and raises a clear error if the provided name does not comply with the rules.
+
+Supported resource types include: `resourcegroup`, `vm_windows`, `vm_linux`, `vmss_windows`, `vmss_linux`, `acr`, `vnet`, `aks`, `aksagentpool`, `keyvault`, `loadbalancer`, `storageaccount`, `storageaccountcontainer`, `fileshare`, `postgresqlserver`, `postgresqldb`, `networksecuritygroup`, `networksecuritygrouprule`, `privateendpoint`, `publicip`, `vpngateway`, `servicebusnamespace`, `loganalyticsworkspace`, `dnszone`, `managedidentity`, `analysisservicesserver`, `computegallery`, `computegalleryimage`, and `userassignedidentity`.
+
+##### Requirements
+
+| Name | Version |
+|------|--------|
+| terraform | >= 1.0 |
+
+##### Inputs
+
+| Name | Type | Default | Required | Description |
+|------|------|---------|----------|-------------|
+| `resource_type` | `string` | — | **yes** | The type of resource to validate the name for. Must be one of the supported types (e.g., `aks`, `acr`, `storageaccount`). Case-insensitive. |
+| `resource_name` | `string` | `""` | **yes** | The resource name to validate. Must conform to the naming rules for the specified resource type. |
+
+##### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `value` | `string` | The validated resource name. This output includes a precondition that validates the name against length limits and character pattern rules for the specified resource type. |
+
+##### Usage
+
+```hcl
+module "resource_name_validation" {
+  source = "path/to/azure/terraform-azurerm-resource-name-validation"
+
+  resource_type = "aks"
+  resource_name = "my-aks-cluster"
+}
+
+output "validated_name" {
+  value = module.resource_name_validation.value
+}
+```
+
+##### Examples
+
+A runnable example is provided under `examples/azure/terraform-azurerm-resource-name-validation/`.
+
+**Validate an AKS cluster name**
+
+```hcl
+module "aks_cluster_name_validation" {
+  source = "../../../azure/terraform-azurerm-resource-name-validation"
+
+  resource_type = "aks"
+  resource_name = "valid-cluster-name"
+}
+
+output "aks_cluster_name_validation_result" {
+  value = module.aks_cluster_name_validation.value
+}
+```
+
+**Validate a Storage Account name**
+
+```hcl
+module "storage_account_name_validation" {
+  source = "../../../azure/terraform-azurerm-resource-name-validation"
+
+  resource_type = "storageaccount"
+  resource_name = "mystorageaccount123"
+}
+
+output "storage_account_name" {
+  value = module.storage_account_name_validation.value
 }
 ```
 
