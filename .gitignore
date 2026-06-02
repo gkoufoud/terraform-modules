@@ -46,6 +46,7 @@ terraform.rc
 # Uncomment the line below if you want to ignore planout files.
 planout
 plan.out
+plan.out.json
 
 # Ignore deploy.sh files
 deploy.sh
