@@ -32,7 +32,8 @@ variable "key_vault_tags" {
 }
 
 module "get_key_vault_secret" {
-  source                            = "../../../azure/terraform-azurerm-get-keyvault-secret"
+  #source                            = "../../../azure/terraform-azurerm-get-keyvault-secret"
+  source                            = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-get-keyvault-secret"
   secret_name                       = var.key_vault_secret_name
   key_vault_resource_group_and_name = var.key_vault_resource_group_name != "" && var.key_vault_name != "" ? "${var.key_vault_resource_group_name}/${var.key_vault_name}" : ""
   key_vault_id                      = var.key_vault_id

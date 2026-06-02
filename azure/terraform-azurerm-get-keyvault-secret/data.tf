@@ -1,10 +1,9 @@
 data "azurerm_client_config" "current" {}
 
 module "keyvault" {
-  # source           = "../terraform-azapi-get-resources" #"git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azapi-get-resources"
-  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azapi-get-resources"
+  source            = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azapi-get-resources"
   type              = "microsoft.keyvault/vaults"
-  tags             = var.key_vault_tags
+  tags              = var.key_vault_tags
   return_attributes = ["id"]
 }
 
