@@ -9,8 +9,7 @@ variable "aks_cluster" { # format: resourcegroup/clustername
 }
 
 module "managed_identity_example" {
-  source = "../../../azure/terraform-azurerm-managed-identity"
-  # source                            = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-get-keyvault-secret"
+  source              = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-managed-identity"
   name                = "example-managed-identity"
   resource_group_name = "example-resource-group"
   location            = "uksouth"
@@ -27,10 +26,8 @@ data "azurerm_kubernetes_cluster" "example" {
 
 
 module "managed_identity_fc_example" {
-  count  = length(split("/", var.aks_cluster)) == 2 ? 1 : 0
-  source = "../../../azure/terraform-azurerm-managed-identity"
-  # source                            = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-get-keyvault-secret"
-  # for_each = length(split("/", var.aks_cluster)) == 2 ? toset([1]) : toset([])
+  count               = length(split("/", var.aks_cluster)) == 2 ? 1 : 0
+  source              = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-managed-identity"
   name                = "example-managed-identity-fc"
   resource_group_name = "example-resource-group"
   location            = "uksouth"
