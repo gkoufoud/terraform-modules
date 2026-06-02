@@ -31,6 +31,13 @@ A collection of reusable Terraform modules for Microsoft Azure.
       - [Outputs](#outputs-2)
       - [Usage](#usage-2)
       - [Examples](#examples-2)
+    - [terraform-azurerm-resource-lock](#terraform-azurerm-resource-lock)
+      - [Overview](#overview-3)
+      - [Requirements](#requirements-3)
+      - [Inputs](#inputs-3)
+      - [Outputs](#outputs-3)
+      - [Usage](#usage-3)
+      - [Examples](#examples-3)
 
 ---
 
@@ -441,6 +448,81 @@ module "managed_identity_fc_example" {
 
 output "managed_identity_fc_example_id" {
   value = module.managed_identity_fc_example.managed_identity.id
+}
+```
+
+#### terraform-azurerm-resource-lock
+
+**Path:** `azure/terraform-azurerm-resource-lock`
+
+##### Overview
+
+This module creates an Azure Management Lock on a given scope to help protect critical resources from accidental changes or deletion. It supports both lock levels exposed by Azure: `CanNotDelete` and `ReadOnly`.
+
+The lock can be applied at subscription, resource group, or individual resource scope by passing the corresponding Azure resource ID.
+
+##### Requirements
+
+| Name | Version |
+|------|---------|
+| terraform | >= 1.0 |
+| [hashicorp/azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest) | ~> 4.74 |
+
+##### Inputs
+
+| Name | Type | Default | Required | Description |
+|------|------|---------|----------|-------------|
+| `lock_name` | `string` | — | **yes** | The name of the Management Lock. |
+| `scope` | `string` | — | **yes** | The Azure resource ID of the scope where the lock is applied (subscription, resource group, or resource). |
+| `lock_level` | `string` | — | **yes** | The lock level. Must be exactly `CanNotDelete` or `ReadOnly`. |
+| `notes` | `string` | `null` | no | Optional note/description for the lock. |
+
+##### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `lock` | `object` | The full `azurerm_management_lock` resource object. Useful attributes include `.id`, `.name`, `.scope`, and `.lock_level`. |
+
+##### Usage
+
+```hcl
+module "resource_lock" {
+  source = "path/to/azure/terraform-azurerm-resource-lock"
+
+  lock_name  = "protect-prod-rg"
+  scope      = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/prod-rg"
+  lock_level = "CanNotDelete"
+  notes      = "Prevents accidental deletion of production resources."
+}
+
+output "resource_lock_id" {
+  value = module.resource_lock.lock.id
+}
+```
+
+##### Examples
+
+A runnable example is provided under `examples/azure/terraform-azurerm-resource-lock/`.
+
+**Apply a delete lock to an AKS cluster**
+
+```hcl
+data "azurerm_kubernetes_cluster" "example" {
+  name                = "my-aks-cluster"
+  resource_group_name = "example-resource-group"
+}
+
+module "aks_lock" {
+  source = "../../../azure/terraform-azurerm-resource-lock"
+
+  lock_name  = "example-aks-lock"
+  scope      = data.azurerm_kubernetes_cluster.example.id
+  lock_level = "CanNotDelete"
+  notes      = "This lock prevents deletion of the AKS cluster."
+}
+
+output "aks_lock_id" {
+  value = module.aks_lock.lock.id
 }
 ```
 
