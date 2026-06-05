@@ -16,7 +16,7 @@ A collection of reusable Terraform modules for Microsoft Azure.
       - [Outputs](#outputs)
       - [Usage](#usage)
       - [Examples](#examples)
-    - [terraform-azurerm-get-keyvault-secret](#terraform-azurerm-get-keyvault-secret)
+    - [terraform-azurerm-dns](#terraform-azurerm-dns)
       - [Overview](#overview-1)
       - [How It Works](#how-it-works-1)
       - [Requirements](#requirements-1)
@@ -24,33 +24,41 @@ A collection of reusable Terraform modules for Microsoft Azure.
       - [Outputs](#outputs-1)
       - [Usage](#usage-1)
       - [Examples](#examples-1)
-    - [terraform-azurerm-managed-identity](#terraform-azurerm-managed-identity)
+    - [terraform-azurerm-get-keyvault-secret](#terraform-azurerm-get-keyvault-secret)
       - [Overview](#overview-2)
+      - [How It Works](#how-it-works-2)
       - [Requirements](#requirements-2)
       - [Inputs](#inputs-2)
       - [Outputs](#outputs-2)
       - [Usage](#usage-2)
       - [Examples](#examples-2)
-    - [terraform-azurerm-resource-lock](#terraform-azurerm-resource-lock)
+    - [terraform-azurerm-managed-identity](#terraform-azurerm-managed-identity)
       - [Overview](#overview-3)
       - [Requirements](#requirements-3)
       - [Inputs](#inputs-3)
       - [Outputs](#outputs-3)
       - [Usage](#usage-3)
       - [Examples](#examples-3)
-    - [terraform-azurerm-resource-name-validation](#terraform-azurerm-resource-name-validation)
+    - [terraform-azurerm-resource-lock](#terraform-azurerm-resource-lock)
       - [Overview](#overview-4)
       - [Requirements](#requirements-4)
       - [Inputs](#inputs-4)
       - [Outputs](#outputs-4)
       - [Usage](#usage-4)
       - [Examples](#examples-4)
-    - [terraform-azurerm-role-assignment](#terraform-azurerm-role-assignment)
+    - [terraform-azurerm-resource-name-validation](#terraform-azurerm-resource-name-validation)
       - [Overview](#overview-5)
       - [Requirements](#requirements-5)
       - [Inputs](#inputs-5)
+      - [Outputs](#outputs-5)
       - [Usage](#usage-5)
       - [Examples](#examples-5)
+    - [terraform-azurerm-role-assignment](#terraform-azurerm-role-assignment)
+      - [Overview](#overview-6)
+      - [Requirements](#requirements-6)
+      - [Inputs](#inputs-6)
+      - [Usage](#usage-6)
+      - [Examples](#examples-6)
 
 ---
 
@@ -208,6 +216,173 @@ module "vnets_in_region" {
   type      = "microsoft.network/virtualnetworks"
   location  = "northeurope"
   return_attributes = ["id", "name", "location"]
+}
+```
+
+#### terraform-azurerm-dns
+
+**Path:** `azure/terraform-azurerm-dns`
+
+##### Overview
+
+This module provisions Azure DNS resources for both public and private zones. It supports zone creation, optional DNSSEC enablement for public zones, private zone virtual network links, and a broad set of DNS record types so callers can manage an entire DNS footprint from a single module invocation.
+
+Supported record families include `A`, `CNAME`, `MX`, `NS`, `CAA`, `PTR`, `SRV`, and `TXT`. For record types that exist in both Azure DNS and Azure Private DNS, the module routes each item to the correct provider resource based on `zone_type`.
+
+##### How It Works
+
+The module splits each input collection by resource kind and, where applicable, by zone type:
+
+```
+dns_zones
+   ├─ public  ──> azurerm_dns_zone
+   │              └─ optional DNSSEC via azapi_resource
+   └─ private ──> azurerm_private_dns_zone
+                    └─ optional vnet links
+
+record collections
+   ├─ public  ──> azurerm_dns_*_record resources
+   └─ private ─> azurerm_private_dns_*_record resources
+```
+
+Each list item is keyed deterministically from the zone or record attributes, which makes plans stable when managing multiple zones and records in the same module call.
+
+##### Requirements
+
+| Name | Version |
+|------|---------|
+| terraform | >= 1.0 |
+| [azure/azapi](https://registry.terraform.io/providers/azure/azapi/latest) | ~> 2.10 |
+| [hashicorp/azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest) | ~> 4.74 |
+
+##### Inputs
+
+| Name | Type | Default | Required | Description |
+|------|------|---------|----------|-------------|
+| `dns_zones` | `list(object(...))` | `[]` | no | DNS zones to create. Each object requires `name` and `resource_group_name`, and supports `zone_type` (`public` or `private`), `dns_sec_enabled` (public only), optional `soa_record`, and `tags`. |
+| `vnet_links` | `list(object(...))` | `[]` | no | Virtual network links for private DNS zones. Each object requires `name`, `private_dns_zone_name`, `resource_group_name`, and `virtual_network_id`, and supports `registration_enabled`, `resolution_policy` (`Default` or `NxDomainRedirect`), and `tags`. |
+| `a_records` | `list(object(...))` | `[]` | no | `A` records for public or private zones. Each object requires `name`, `zone_name`, and `resource_group_name`, and supports `zone_type`, `ttl`, either `records` or `target_resource_id` (public only), and `tags`. |
+| `cname_records` | `list(object(...))` | `[]` | no | `CNAME` records for public or private zones. Each object requires `name`, `zone_name`, `resource_group_name`, and `record`, and supports `zone_type`, `ttl`, optional `target_resource_id` (public only), and `tags`. |
+| `mx_records` | `list(object(...))` | `[]` | no | `MX` records for public or private zones. Each object requires `name`, `zone_name`, `resource_group_name`, and `records`, where each record entry contains `preference` and `exchange`. Supports `zone_type`, `ttl`, and `tags`. |
+| `ns_records` | `list(object(...))` | `[]` | no | Public `NS` records. Each object requires `name`, `zone_name`, `resource_group_name`, and `records`, and supports `ttl` and `tags`. |
+| `caa_records` | `list(object(...))` | `[]` | no | Public `CAA` records. Each object requires `name`, `zone_name`, `resource_group_name`, and `records`, where each entry contains `flags`, `tag`, and `value`. Valid tags are `issue`, `issuewild`, `iodef`, and `contactemail`. |
+| `ptr_records` | `list(object(...))` | `[]` | no | `PTR` records for public or private zones. Each object requires `name`, `zone_name`, `resource_group_name`, and `records`, and supports `zone_type`, `ttl`, and `tags`. |
+| `srv_records` | `list(object(...))` | `[]` | no | `SRV` records for public or private zones. Each object requires `name`, `zone_name`, `resource_group_name`, and `records`, where each entry contains `priority`, `weight`, `port`, and `target`. Supports `zone_type`, `ttl`, and `tags`. |
+| `txt_records` | `list(object(...))` | `[]` | no | `TXT` records for public or private zones. Each object requires `name`, `zone_name`, `resource_group_name`, and `records`, and supports `zone_type`, `ttl`, and `tags`. |
+
+##### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `public_dns_zones` | `map(any)` | Public DNS zones keyed by `<resource_group_name>_<zone_name>`. |
+| `private_dns_zones` | `map(any)` | Private DNS zones keyed by `<resource_group_name>_<zone_name>`. |
+| `public_dns_zones_dnssec` | `map(any)` | DNSSEC configuration resources for public zones where `dns_sec_enabled = true`. |
+| `vnet_links` | `map(any)` | Private DNS zone virtual network links keyed by resource group, zone, and virtual network ID. |
+| `public_a_records` | `map(any)` | Public `A` records. |
+| `private_a_records` | `map(any)` | Private `A` records. |
+| `public_cname_records` | `map(any)` | Public `CNAME` records. |
+| `private_cname_records` | `map(any)` | Private `CNAME` records. |
+| `public_mx_records` | `map(any)` | Public `MX` records. |
+| `private_mx_records` | `map(any)` | Private `MX` records. |
+| `ns_records` | `map(any)` | Public `NS` records. |
+| `caa_records` | `map(any)` | Public `CAA` records. |
+| `public_ptr_records` | `map(any)` | Public `PTR` records. |
+| `private_ptr_records` | `map(any)` | Private `PTR` records. |
+| `public_srv_records` | `map(any)` | Public `SRV` records. |
+| `private_srv_records` | `map(any)` | Private `SRV` records. |
+| `public_txt_records` | `map(any)` | Public `TXT` records. |
+| `private_txt_records` | `map(any)` | Private `TXT` records. |
+
+##### Usage
+
+```hcl
+module "dns" {
+  source = "path/to/azure/terraform-azurerm-dns"
+
+  dns_zones = [
+    {
+      name                = "example.com"
+      resource_group_name = "networking-rg"
+      zone_type           = "public"
+      dns_sec_enabled     = true
+      tags = {
+        Environment = "prod"
+      }
+    },
+    {
+      name                = "internal.example.com"
+      resource_group_name = "networking-rg"
+      zone_type           = "private"
+    }
+  ]
+
+  vnet_links = [
+    {
+      name                  = "internal-example-link"
+      private_dns_zone_name = "internal.example.com"
+      resource_group_name   = "networking-rg"
+      virtual_network_id    = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/networking-rg/providers/Microsoft.Network/virtualNetworks/hub-vnet"
+      registration_enabled  = true
+    }
+  ]
+
+  a_records = [
+    {
+      name                = "www"
+      zone_name           = "example.com"
+      resource_group_name = "networking-rg"
+      records             = ["203.0.113.10"]
+    },
+    {
+      name                = "api"
+      zone_name           = "internal.example.com"
+      resource_group_name = "networking-rg"
+      zone_type           = "private"
+      records             = ["10.10.1.4"]
+    }
+  ]
+
+  txt_records = [
+    {
+      name                = "@"
+      zone_name           = "example.com"
+      resource_group_name = "networking-rg"
+      records             = ["v=spf1 include:spf.protection.outlook.com -all"]
+    }
+  ]
+}
+```
+
+##### Examples
+
+A runnable example is provided under `examples/azure/terraform-azurerm-dns/`.
+
+**Create public and private zones with representative records**
+
+```hcl
+module "dns_example" {
+  source = "../../../azure/terraform-azurerm-dns"
+
+  dns_zones = [
+    {
+      name                = "myzone.com"
+      resource_group_name = "myresourcegroup"
+    },
+    {
+      name                = "myprivatezone1.com"
+      resource_group_name = "myresourcegroup"
+      zone_type           = "private"
+    }
+  ]
+
+  a_records = [
+    {
+      name                = "www"
+      zone_name           = "myzone.com"
+      resource_group_name = "myresourcegroup"
+      records             = ["1.2.3.4", "5.6.7.8"]
+    }
+  ]
 }
 ```
 

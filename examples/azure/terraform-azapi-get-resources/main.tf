@@ -5,20 +5,20 @@ variable "key_vault_name" {
 }
 
 module "resource_by_name_return_all_attributes" {
-  source = "../../../azure/terraform-azapi-get-resources"
+  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azapi-get-resources"
   type   = "microsoft.keyvault/vaults"
   name   = var.key_vault_name
 }
 
 module "resource_by_name_return_id" {
-  source            = "../../../azure/terraform-azapi-get-resources"
+  source            = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azapi-get-resources"
   type              = "microsoft.keyvault/vaults"
   name              = var.key_vault_name
   return_attributes = ["id"]
 }
 
 module "resource_by_tags_return_all_attributes" {
-  source = "../../../azure/terraform-azapi-get-resources"
+  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azapi-get-resources"
   type   = "microsoft.keyvault/vaults"
   tags = {
     "Usage"       = "infra"
