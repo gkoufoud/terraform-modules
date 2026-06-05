@@ -166,7 +166,7 @@ A runnable example is provided under `examples/terraform-azapi-get-resources/`.
 
 ```hcl
 module "resource_by_name_return_all_attributes" {
-  source = "../../azure/terraform-azapi-get-resources"
+  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azapi-get-resources"
   type   = "microsoft.keyvault/vaults"
   name   = "my-keyvault"
 }
@@ -180,7 +180,7 @@ output "vault" {
 
 ```hcl
 module "resource_by_name_return_id" {
-  source            = "../../azure/terraform-azapi-get-resources"
+  source            = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azapi-get-resources"
   type              = "microsoft.keyvault/vaults"
   name              = "my-keyvault"
   return_attributes = ["id"]
@@ -195,7 +195,7 @@ output "vault_id" {
 
 ```hcl
 module "resource_by_tags_return_all_attributes" {
-  source = "../../azure/terraform-azapi-get-resources"
+  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azapi-get-resources"
   type   = "microsoft.keyvault/vaults"
   tags = {
     Usage       = "infra"
@@ -212,7 +212,7 @@ output "vault_id" {
 
 ```hcl
 module "vnets_in_region" {
-  source    = "../../azure/terraform-azapi-get-resources"
+  source    = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azapi-get-resources"
   type      = "microsoft.network/virtualnetworks"
   location  = "northeurope"
   return_attributes = ["id", "name", "location"]
@@ -361,7 +361,7 @@ A runnable example is provided under `examples/azure/terraform-azurerm-dns/`.
 
 ```hcl
 module "dns_example" {
-  source = "../../../azure/terraform-azurerm-dns"
+  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-dns"
 
   dns_zones = [
     {
@@ -477,7 +477,7 @@ A runnable example is provided under `examples/azure/terraform-azurerm-get-keyva
 
 ```hcl
 module "get_key_vault_secret" {
-  source       = "../../../azure/terraform-azurerm-get-keyvault-secret"
+  source       = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-get-keyvault-secret"
   secret_name  = "my-secret"
   key_vault_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.KeyVault/vaults/my-keyvault"
 }
@@ -492,7 +492,7 @@ output "key_vault_secret_value" {
 
 ```hcl
 module "get_key_vault_secret" {
-  source                            = "../../../azure/terraform-azurerm-get-keyvault-secret"
+  source                            = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-get-keyvault-secret"
   secret_name                       = "my-secret"
   key_vault_resource_group_and_name = "my-rg/my-keyvault"
 }
@@ -507,7 +507,7 @@ output "key_vault_secret_value" {
 
 ```hcl
 module "get_key_vault_secret" {
-  source      = "../../../azure/terraform-azurerm-get-keyvault-secret"
+  source      = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-get-keyvault-secret"
   secret_name = "my-secret"
   key_vault_tags = {
     Environment = "prod"
@@ -594,7 +594,7 @@ A runnable example is provided under `examples/azure/terraform-azurerm-managed-i
 
 ```hcl
 module "managed_identity_example" {
-  source              = "../../../azure/terraform-azurerm-managed-identity"
+  source              = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-managed-identity"
   name                = "example-managed-identity"
   resource_group_name = "example-resource-group"
   location            = "uksouth"
@@ -617,7 +617,7 @@ data "azurerm_kubernetes_cluster" "example" {
 }
 
 module "managed_identity_fc_example" {
-  source              = "../../../azure/terraform-azurerm-managed-identity"
+  source              = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-managed-identity"
   name                = "example-managed-identity-fc"
   resource_group_name = "example-resource-group"
   location            = "uksouth"
@@ -701,7 +701,7 @@ data "azurerm_kubernetes_cluster" "example" {
 }
 
 module "aks_lock" {
-  source = "../../../azure/terraform-azurerm-resource-lock"
+  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-resource-lock"
 
   lock_name  = "example-aks-lock"
   scope      = data.azurerm_kubernetes_cluster.example.id
@@ -766,7 +766,7 @@ A runnable example is provided under `examples/azure/terraform-azurerm-resource-
 
 ```hcl
 module "aks_cluster_name_validation" {
-  source = "../../../azure/terraform-azurerm-resource-name-validation"
+  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-resource-name-validation"
 
   resource_type = "aks"
   resource_name = "valid-cluster-name"
@@ -781,7 +781,7 @@ output "aks_cluster_name_validation_result" {
 
 ```hcl
 module "storage_account_name_validation" {
-  source = "../../../azure/terraform-azurerm-resource-name-validation"
+  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-resource-name-validation"
 
   resource_type = "storageaccount"
   resource_name = "mystorageaccount123"
