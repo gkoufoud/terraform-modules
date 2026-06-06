@@ -99,7 +99,7 @@ variable "cname_records" {
     resource_group_name = string
     zone_type           = optional(string, "public") # "public" or "private"
     ttl                 = optional(number, 300)
-    record              = string
+    record              = optional(string, null)
     target_resource_id  = optional(string, null)
     tags                = optional(map(string), {})
   }))
