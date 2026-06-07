@@ -1,12 +1,6 @@
 mock_provider "azurerm" {
   override_during = plan
-  # alias = "azurerm_mock"
 }
-
-# mock_provider "azapi" {
-#   override_during = plan
-#   # alias = "azapi_mock"
-# }
 
 override_data {
   target = data.azurerm_subscription.current
