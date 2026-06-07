@@ -14,3 +14,4 @@ terraform test -filter terraform-azapi-get-resources.tftest.hcl
 terraform test -filter terraform-azurerm-dns.tftest.hcl
 terraform test -filter terraform-azurerm-get-keyvault-secret.tftest.hcl
 terraform test -filter terraform-azurerm-managed-identity.tftest.hcl
+terraform test -filter terraform-azurerm-resource-lock.tftest.hcl
