@@ -1,6 +1,5 @@
 mock_provider "azurerm" {
   override_during = plan
-  # alias = "azurerm_mock"
 }
 
 #################################
