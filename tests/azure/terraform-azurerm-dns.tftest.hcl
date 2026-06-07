@@ -597,17 +597,17 @@ run "test_a_records" {
   assert {
     condition = jsonencode(output.private_a_records) == jsonencode({
       "myresourcegroup2-myprivatezone2.com-host5" = {
-          fqdn                = "host5.myprivatezone2.com"
-          id                  = "id5"
-          name                = "host5"
-          records             = [
-              "10.10.10.5",
-          ]
-          resource_group_name = "myresourcegroup2"
-          tags                = {}
-          timeouts            = null
-          ttl                 = 7200
-          zone_name           = "myprivatezone2.com"
+        fqdn = "host5.myprivatezone2.com"
+        id   = "id5"
+        name = "host5"
+        records = [
+          "10.10.10.5",
+        ]
+        resource_group_name = "myresourcegroup2"
+        tags                = {}
+        timeouts            = null
+        ttl                 = 7200
+        zone_name           = "myprivatezone2.com"
       }
     })
     error_message = "bad values"
@@ -662,45 +662,45 @@ run "test_cname_records" {
   assert {
     condition = jsonencode(output.public_cname_records) == jsonencode({
       "myresourcegroup1-myzone1.com-host1" = {
-          fqdn                = "host1.myzone1.com"
-          id                  = "id1"
-          name                = "host1"
-          record              = "mytarget1.contoso.com"
-          resource_group_name = "myresourcegroup1"
-          tags                = {}
-          timeouts            = null
-          ttl                 = 300
-          target_resource_id  = null
-          zone_name           = "myzone1.com"
+        fqdn                = "host1.myzone1.com"
+        id                  = "id1"
+        name                = "host1"
+        record              = "mytarget1.contoso.com"
+        resource_group_name = "myresourcegroup1"
+        tags                = {}
+        timeouts            = null
+        ttl                 = 300
+        target_resource_id  = null
+        zone_name           = "myzone1.com"
       }
       "myresourcegroup1-myzone1.com-host2" = {
-          fqdn                = "host2.myzone1.com"
-          id                  = "id2"
-          name                = "host2"
-          record              = "mytarget2.contoso.com"
-          resource_group_name = "myresourcegroup1"
-          timeouts            = null
-          tags                = {
-              "environment" = "test"
-          }
-          target_resource_id  = null
-          ttl                 = 3600
-          zone_name           = "myzone1.com"
+        fqdn                = "host2.myzone1.com"
+        id                  = "id2"
+        name                = "host2"
+        record              = "mytarget2.contoso.com"
+        resource_group_name = "myresourcegroup1"
+        timeouts            = null
+        tags = {
+          "environment" = "test"
+        }
+        target_resource_id = null
+        ttl                = 3600
+        zone_name          = "myzone1.com"
       }
       "myresourcegroup1-myzone1.com-host3" = {
-          fqdn                = "host3.myzone1.com"
-          id                  = "id3"
-          name                = "host3"
-          record              = null
-          resource_group_name = "myresourcegroup1"
-          timeouts            = null
-          tags                = {
-              "environment" = "test"
-              "usage"       = "host3"
-          }
-          target_resource_id  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myresourcegroup1/providers/Microsoft.Network/publicIPAddresses/mypublicip1"
-          ttl                 = 300
-          zone_name           = "myzone1.com"
+        fqdn                = "host3.myzone1.com"
+        id                  = "id3"
+        name                = "host3"
+        record              = null
+        resource_group_name = "myresourcegroup1"
+        timeouts            = null
+        tags = {
+          "environment" = "test"
+          "usage"       = "host3"
+        }
+        target_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myresourcegroup1/providers/Microsoft.Network/publicIPAddresses/mypublicip1"
+        ttl                = 300
+        zone_name          = "myzone1.com"
       }
     })
     error_message = "bad values"
@@ -709,18 +709,18 @@ run "test_cname_records" {
   assert {
     condition = jsonencode(output.private_cname_records) == jsonencode({
       "myresourcegroup2-myprivatezone2.com-host5" = {
-          fqdn                = "host5.myprivatezone2.com"
-          id                  = "id5"
-          name                = "host5"
-          record              = "mytarget3.contoso.com"
-          resource_group_name = "myresourcegroup2"
-          tags                = {}
-          timeouts            = null
-          ttl                 = 7200
-          zone_name           = "myprivatezone2.com"
+        fqdn                = "host5.myprivatezone2.com"
+        id                  = "id5"
+        name                = "host5"
+        record              = "mytarget3.contoso.com"
+        resource_group_name = "myresourcegroup2"
+        tags                = {}
+        timeouts            = null
+        ttl                 = 7200
+        zone_name           = "myprivatezone2.com"
       }
     })
-    error_message = "bad values"   
+    error_message = "bad values"
   }
 }
 
@@ -898,35 +898,35 @@ run "test_ns_records" {
   assert {
     condition = jsonencode(output.ns_records) == jsonencode({
       "myresourcegroup1-myzone1.com-host1" = {
-          fqdn                = "host1.myzone1.com"
-          id                  = "id1"
-          name                = "host1"
-          records             = [
-              "ns1.contoso.com",
-              "ns2.contoso.com",
-          ]
-          resource_group_name = "myresourcegroup1"
-          tags                = {}
-          timeouts            = null
-          ttl                 = 300
-          zone_name           = "myzone1.com"
+        fqdn = "host1.myzone1.com"
+        id   = "id1"
+        name = "host1"
+        records = [
+          "ns1.contoso.com",
+          "ns2.contoso.com",
+        ]
+        resource_group_name = "myresourcegroup1"
+        tags                = {}
+        timeouts            = null
+        ttl                 = 300
+        zone_name           = "myzone1.com"
       }
       "myresourcegroup1-myzone1.com-host2" = {
-          fqdn                = "host2.myzone1.com"
-          id                  = "id2"
-          name                = "host2"
-          records             = [
-              "ns1.contoso.com",
-              "ns2.contoso.com",
-          ]
-          resource_group_name = "myresourcegroup1"
-          tags                = {
-              "environment" = "test"
-              "usage"       = "host3"
-          }
-          timeouts            = null
-          ttl                 = 3600
-          zone_name           = "myzone1.com"
+        fqdn = "host2.myzone1.com"
+        id   = "id2"
+        name = "host2"
+        records = [
+          "ns1.contoso.com",
+          "ns2.contoso.com",
+        ]
+        resource_group_name = "myresourcegroup1"
+        tags = {
+          "environment" = "test"
+          "usage"       = "host3"
+        }
+        timeouts  = null
+        ttl       = 3600
+        zone_name = "myzone1.com"
       }
     })
     error_message = "bad values"
@@ -980,35 +980,35 @@ run "test_ptr_records" {
   assert {
     condition = jsonencode(output.public_ptr_records) == jsonencode({
       "myresourcegroup1-myzone1.com-host1" = {
-          fqdn                = "host1.myzone1.com"
-          id                  = "id1"
-          name                = "host1"
-          records             = [
-              "record1.contoso.com",
-              "record2.contoso.com",
-          ]
-          resource_group_name = "myresourcegroup1"
-          tags                = {}
-          timeouts            = null
-          ttl                 = 300
-          zone_name           = "myzone1.com"
+        fqdn = "host1.myzone1.com"
+        id   = "id1"
+        name = "host1"
+        records = [
+          "record1.contoso.com",
+          "record2.contoso.com",
+        ]
+        resource_group_name = "myresourcegroup1"
+        tags                = {}
+        timeouts            = null
+        ttl                 = 300
+        zone_name           = "myzone1.com"
       }
       "myresourcegroup1-myzone1.com-host2" = {
-          fqdn                = "host2.myzone1.com"
-          id                  = "id2"
-          name                = "host2"
-          records             = [
-              "record1.contoso.com",
-              "record2.contoso.com",
-          ]
-          resource_group_name = "myresourcegroup1"
-          tags                = {
-              "environment" = "test"
-              "usage"       = "host3"
-          }
-          timeouts            = null
-          ttl                 = 3600
-          zone_name           = "myzone1.com"
+        fqdn = "host2.myzone1.com"
+        id   = "id2"
+        name = "host2"
+        records = [
+          "record1.contoso.com",
+          "record2.contoso.com",
+        ]
+        resource_group_name = "myresourcegroup1"
+        tags = {
+          "environment" = "test"
+          "usage"       = "host3"
+        }
+        timeouts  = null
+        ttl       = 3600
+        zone_name = "myzone1.com"
       }
     })
     error_message = "bad values"
@@ -1017,18 +1017,18 @@ run "test_ptr_records" {
   assert {
     condition = jsonencode(output.private_ptr_records) == jsonencode({
       "myresourcegroup2-myprivatezone2.com-host5" = {
-          fqdn                = "host5.myprivatezone2.com"
-          id                  = "id5"
-          name                = "host5"
-          records             = [
-              "record3.contoso.com",
-              "record4.contoso.com",
-          ]
-          resource_group_name = "myresourcegroup2"
-          tags                = {}
-          timeouts            = null
-          ttl                 = 7200
-          zone_name           = "myprivatezone2.com"
+        fqdn = "host5.myprivatezone2.com"
+        id   = "id5"
+        name = "host5"
+        records = [
+          "record3.contoso.com",
+          "record4.contoso.com",
+        ]
+        resource_group_name = "myresourcegroup2"
+        tags                = {}
+        timeouts            = null
+        ttl                 = 7200
+        zone_name           = "myprivatezone2.com"
       }
     })
     error_message = "bad values"
@@ -1244,43 +1244,43 @@ run "test_txt_records" {
   assert {
     condition = jsonencode(output.public_txt_records) == jsonencode({
       "myresourcegroup1-myzone1.com-host1" = {
-          fqdn                = "host1.myzone1.com"
-          id                  = "id1"
-          name                = "host1"
-          record              = [
-              {
-                  value = "some other text record"
-              },
-              {
-                  value = "v=spf1 include:contoso.com -all"
-              },
-          ]
-          resource_group_name = "myresourcegroup1"
-          tags                = {}
-          timeouts            = null
-          ttl                 = 300
-          zone_name           = "myzone1.com"
+        fqdn = "host1.myzone1.com"
+        id   = "id1"
+        name = "host1"
+        record = [
+          {
+            value = "some other text record"
+          },
+          {
+            value = "v=spf1 include:contoso.com -all"
+          },
+        ]
+        resource_group_name = "myresourcegroup1"
+        tags                = {}
+        timeouts            = null
+        ttl                 = 300
+        zone_name           = "myzone1.com"
       }
       "myresourcegroup1-myzone1.com-host2" = {
-          fqdn                = "host2.myzone1.com"
-          id                  = "id2"
-          name                = "host2"
-          record              = [
-              {
-                  value = "some other text record"
-              },
-              {
-                  value = "v=spf1 include:contoso.com -all"
-              },
-          ]
-          resource_group_name = "myresourcegroup1"
-          tags                = {
-              "environment" = "test"
-              "usage"       = "host3"
-          }
-          timeouts            = null
-          ttl                 = 3600
-          zone_name           = "myzone1.com"
+        fqdn = "host2.myzone1.com"
+        id   = "id2"
+        name = "host2"
+        record = [
+          {
+            value = "some other text record"
+          },
+          {
+            value = "v=spf1 include:contoso.com -all"
+          },
+        ]
+        resource_group_name = "myresourcegroup1"
+        tags = {
+          "environment" = "test"
+          "usage"       = "host3"
+        }
+        timeouts  = null
+        ttl       = 3600
+        zone_name = "myzone1.com"
       }
     })
     error_message = "bad values"
@@ -1289,22 +1289,22 @@ run "test_txt_records" {
   assert {
     condition = jsonencode(output.private_txt_records) == jsonencode({
       "myresourcegroup2-myprivatezone2.com-host5" = {
-          fqdn                = "host5.myprivatezone2.com"
-          id                  = "id5"
-          name                = "host5"
-          record              = [
-              {
-                  value = "a record for private zone"
-              },
-              {
-                  value = "another record for private zone"
-              },
-          ]
-          resource_group_name = "myresourcegroup2"
-          tags                = {}
-          timeouts            = null
-          ttl                 = 7200
-          zone_name           = "myprivatezone2.com"
+        fqdn = "host5.myprivatezone2.com"
+        id   = "id5"
+        name = "host5"
+        record = [
+          {
+            value = "a record for private zone"
+          },
+          {
+            value = "another record for private zone"
+          },
+        ]
+        resource_group_name = "myresourcegroup2"
+        tags                = {}
+        timeouts            = null
+        ttl                 = 7200
+        zone_name           = "myprivatezone2.com"
       }
     })
     error_message = "bad values"

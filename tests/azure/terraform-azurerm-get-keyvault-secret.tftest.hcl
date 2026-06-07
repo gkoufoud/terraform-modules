@@ -21,7 +21,7 @@ override_module {
   outputs = {
     resources = [
       {
-        id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myrg/providers/Microsoft.KeyVault/vaults/testkv"        
+        id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myrg/providers/Microsoft.KeyVault/vaults/testkv"
       }
     ]
   }
@@ -32,7 +32,7 @@ variables {
 }
 
 run "test_key_vault_id" {
-   
+
   variables {
     key_vault_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myrg/providers/Microsoft.KeyVault/vaults/testkv"
   }
@@ -42,18 +42,18 @@ run "test_key_vault_id" {
   }
 
   assert {
-    condition = output.value == "test-secret-value"
+    condition     = output.value == "test-secret-value"
     error_message = "bad values"
   }
 
   assert {
-    condition = output.keyvault_id == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myrg/providers/Microsoft.KeyVault/vaults/testkv"
+    condition     = output.keyvault_id == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myrg/providers/Microsoft.KeyVault/vaults/testkv"
     error_message = "bad values"
   }
 }
 
 run "test_key_vault_resource_group_and_name" {
-   
+
   variables {
     key_vault_resource_group_and_name = "myrg/testkv"
   }
@@ -63,21 +63,21 @@ run "test_key_vault_resource_group_and_name" {
   }
 
   assert {
-    condition = output.value == "test-secret-value"
+    condition     = output.value == "test-secret-value"
     error_message = "bad values"
   }
 
   assert {
-    condition = output.keyvault_id == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myrg/providers/Microsoft.KeyVault/vaults/testkv"
+    condition     = output.keyvault_id == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myrg/providers/Microsoft.KeyVault/vaults/testkv"
     error_message = "bad values"
   }
 }
 
 run "test_key_vault_tags" {
-   
+
   variables {
     key_vault_tags = {
-      env = "test"
+      env   = "test"
       usage = "testing"
     }
   }
@@ -87,20 +87,20 @@ run "test_key_vault_tags" {
   }
 
   assert {
-    condition = output.value == "test-secret-value"
+    condition     = output.value == "test-secret-value"
     error_message = "bad values"
   }
 
   assert {
-    condition = output.keyvault_id == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myrg/providers/Microsoft.KeyVault/vaults/testkv"
+    condition     = output.keyvault_id == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myrg/providers/Microsoft.KeyVault/vaults/testkv"
     error_message = "bad values"
   }
 }
 
 run "test_fail_key_vault_resource_group_and_name" {
-  
+
   command = plan
-  
+
   variables {
     key_vault_resource_group_and_name = "wrongformat"
   }
@@ -115,7 +115,7 @@ run "test_fail_key_vault_resource_group_and_name" {
 }
 
 run "test_fail_key_vault_tags" {
-  
+
   command = plan
 
   override_module {
@@ -124,10 +124,10 @@ run "test_fail_key_vault_tags" {
       resources = []
     }
   }
-  
+
   variables {
     key_vault_tags = {
-      env = "test"
+      env   = "test"
       usage = "testing"
     }
   }
