@@ -11,4 +11,4 @@ trap 'failure ${LINENO} "$BASH_COMMAND" $?' ERR
 
 cd "$(dirname "$0")"
 terraform init -upgrade=true
-terraform test 
+terraform test

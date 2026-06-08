@@ -77,12 +77,12 @@ locals {
     lower(var.resource_type) == "vmss_linux" ? "^[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$" :
     lower(var.resource_type) == "acr" ? "^[a-zA-Z0-9]+$" :
     lower(var.resource_type) == "vnet" ? "^[a-zA-Z0-9](?:[a-zA-Z0-9_.-]*[a-zA-Z0-9_])?$" :
-    lower(var.resource_type) == "keyvault" ? "^(?!.*--)[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$" :
+    lower(var.resource_type) == "keyvault" ? "^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$" :
     lower(var.resource_type) == "loadbalancer" ? "^[a-zA-Z0-9](?:[a-zA-Z0-9_.-]*[a-zA-Z0-9_])?$" :
     lower(var.resource_type) == "storageaccount" ? "^[a-z0-9]{3,24}$" :
-    lower(var.resource_type) == "storageaccountcontainer" ? "^(?!.*--)[a-z0-9][a-z0-9-]*[a-z0-9]$" :
-    lower(var.resource_type) == "fileshare" ? "^(?!.*--)[a-z0-9][a-z0-9-]*[a-z0-9]$" :
-    lower(var.resource_type) == "postgresqlserver" ? "^(?!.*--)[a-z0-9][a-z0-9-]*[a-z0-9]$" :
+    lower(var.resource_type) == "storageaccountcontainer" ? "^[a-z0-9][a-z0-9-]*[a-z0-9]$" :
+    lower(var.resource_type) == "fileshare" ? "^[a-z0-9][a-z0-9-]*[a-z0-9]$" :
+    lower(var.resource_type) == "postgresqlserver" ? "^[a-z0-9][a-z0-9-]*[a-z0-9]$" :
     lower(var.resource_type) == "postgresqldb" ? "^[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$" :
     lower(var.resource_type) == "networksecuritygroup" ? "^[a-zA-Z0-9](?:[a-zA-Z0-9_.-]*[a-zA-Z0-9_])?$" :
     lower(var.resource_type) == "networksecuritygrouprule" ? "^[a-zA-Z0-9](?:[a-zA-Z0-9_.-]*[a-zA-Z0-9_])?$" :
@@ -132,4 +132,11 @@ locals {
     lower(var.resource_type) == "userassignedidentity" ? "It can contain alphanumerics, hyphens, and underscores, and must start with a letter or number." :
     "It doesn't match the naming rules for the selected resource type."
   )
+
+  block_consecutive_hyphens = contains([
+    "keyvault",
+    "storageaccountcontainer",
+    "fileshare",
+    "postgresqlserver",
+  ], lower(var.resource_type))
 }
