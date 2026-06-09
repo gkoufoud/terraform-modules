@@ -34,8 +34,8 @@ module "dns_example" {
   ]
   caa_records = [
     {
-      name = "@"
-      zone_name = "myzone.com"
+      name                = "@"
+      zone_name           = "myzone.com"
       resource_group_name = "myresourcegroup"
       records = [
         {
@@ -61,7 +61,7 @@ module "dns_example" {
       ]
     },
   ]
-  a_records     = [
+  a_records = [
     {
       name                = "www"
       zone_name           = "myzone.com"

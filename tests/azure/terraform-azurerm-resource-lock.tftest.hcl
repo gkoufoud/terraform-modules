@@ -42,7 +42,7 @@ run "test_lock_notes" {
   }
 
   variables {
-    notes = "This is a test lock with notes."
+    notes      = "This is a test lock with notes."
     lock_level = "ReadOnly"
   }
 
@@ -63,7 +63,7 @@ run "test_lock_notes" {
 run "test_lock_fail_scope" {
 
   command = plan
-  
+
   module {
     source = "../../azure/terraform-azurerm-resource-lock"
   }

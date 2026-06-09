@@ -50,3 +50,6 @@ plan.out.json
 
 # Ignore deploy.sh files
 deploy.sh
+
+# ignore .test.sh files
+*.test.sh
