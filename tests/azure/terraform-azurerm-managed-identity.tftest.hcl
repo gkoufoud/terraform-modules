@@ -24,7 +24,7 @@ run "test_managed_identity_simple" {
   }
 
   assert {
-      condition = jsonencode(output.managed_identity) == jsonencode({
+    condition = jsonencode(output.managed_identity) == jsonencode({
       client_id           = "10000000-0000-0000-0000-000000000000"
       id                  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myresourcegroup/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myidentity"
       isolation_scope     = null
@@ -40,7 +40,7 @@ run "test_managed_identity_simple" {
   }
 
   assert {
-    condition = output.federated_identity_credentials == {}
+    condition     = output.federated_identity_credentials == {}
     error_message = "federated_identity_credentials should be empty"
   }
 }
@@ -49,7 +49,7 @@ run "test_managed_identity_location_and_tags" {
 
   variables {
     location = "ussouth"
-    tags     = {
+    tags = {
       environment = "test"
       usage       = "testing"
     }
@@ -60,7 +60,7 @@ run "test_managed_identity_location_and_tags" {
   }
 
   assert {
-      condition = jsonencode(output.managed_identity) == jsonencode({
+    condition = jsonencode(output.managed_identity) == jsonencode({
       client_id           = "10000000-0000-0000-0000-000000000000"
       id                  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myresourcegroup/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myidentity"
       isolation_scope     = null
@@ -68,18 +68,18 @@ run "test_managed_identity_location_and_tags" {
       name                = "myidentity"
       principal_id        = "20000000-0000-0000-0000-000000000000"
       resource_group_name = "myresourcegroup"
-      tags                = {
+      tags = {
         environment = "test"
         usage       = "testing"
       }
-      timeouts            = null
-      tenant_id           = "30000000-0000-0000-0000-000000000000"
+      timeouts  = null
+      tenant_id = "30000000-0000-0000-0000-000000000000"
     })
     error_message = "bad values"
   }
 
   assert {
-    condition = output.federated_identity_credentials == {}
+    condition     = output.federated_identity_credentials == {}
     error_message = "federated_identity_credentials should be empty"
   }
 }

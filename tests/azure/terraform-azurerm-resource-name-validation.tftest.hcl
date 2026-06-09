@@ -1,7 +1,7 @@
 run "test_resourcegroup_simple" {
 
   command = plan
-  
+
   module {
     source = "../../azure/terraform-azurerm-resource-name-validation"
   }

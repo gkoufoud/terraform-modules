@@ -53,12 +53,19 @@ A collection of reusable Terraform modules for Microsoft Azure.
       - [Outputs](#outputs-5)
       - [Usage](#usage-5)
       - [Examples](#examples-5)
-    - [terraform-azurerm-role-assignment](#terraform-azurerm-role-assignment)
+    - [terraform-azurerm-private-endpoint](#terraform-azurerm-private-endpoint)
       - [Overview](#overview-6)
       - [Requirements](#requirements-6)
       - [Inputs](#inputs-6)
+      - [Outputs](#outputs-6)
       - [Usage](#usage-6)
       - [Examples](#examples-6)
+    - [terraform-azurerm-role-assignment](#terraform-azurerm-role-assignment)
+      - [Overview](#overview-7)
+      - [Requirements](#requirements-7)
+      - [Inputs](#inputs-7)
+      - [Usage](#usage-7)
+      - [Examples](#examples-7)
 
 ---
 
@@ -791,6 +798,175 @@ output "storage_account_name" {
   value = module.storage_account_name_validation.value
 }
 ```
+
+#### terraform-azurerm-private-endpoint
+
+**Path:** `azure/terraform-azurerm-private-endpoint`
+
+##### Overview
+
+This module creates an [Azure Private Endpoint](https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-overview), enabling a secure private connection from a virtual network to an Azure service or your own Private Link service. The private endpoint is assigned a private IP address from the specified subnet and optionally integrates with Azure Private DNS.
+
+The module enforces rich input validation at plan time: resource IDs are format-checked, subresource names are validated against a built-in per-resource-type allow-list derived from the Azure Private Link documentation, and IP configuration entries are verified for uniqueness and consistency with the private service connection.
+
+##### Requirements
+
+| Name | Version |
+|------|--------|
+| terraform | >= 1.0 |
+| [hashicorp/azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest) | ~> 4.74 |
+
+##### Inputs
+
+| Name | Type | Default | Required | Description |
+|------|------|---------|----------|-------------|
+| `name` | `string` | — | **yes** | The name of the private endpoint. Must be at least 2 characters long. |
+| `resource_group_name` | `string` | — | **yes** | The name of the resource group in which to create the private endpoint. |
+| `location` | `string` | `"uksouth"` | no | The Azure region in which to create the private endpoint. |
+| `tags` | `map(string)` | `{}` | no | A map of tags to assign to the private endpoint. |
+| `subnet_id` | `string` | — | **yes** | The ID of the subnet from which a private IP address will be allocated. Must be a valid Azure subnet resource ID. |
+| `custom_network_interface_name` | `string` | `null` | no | Optional custom name for the network interface attached to the private endpoint. |
+| `private_dns_zone_group` | `object` | `null` | no | Optional DNS zone group block. See [private_dns_zone_group](#private_dns_zone_group) below. |
+| `private_service_connection` | `object` | — | **yes** | Private service connection block. See [private_service_connection](#private_service_connection) below. |
+| `ip_configurations` | `list(object)` | `[]` | no | Optional list of custom static IP configurations. See [ip_configurations](#ip_configurations) below. |
+
+###### private_dns_zone_group
+
+| Attribute | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | `string` | **yes** | Name of the DNS zone group. Must be at least 4 characters long. |
+| `private_dns_zone_ids` | `list(string)` | **yes** | One or more Private DNS zone resource IDs to associate. Each must be a valid `Microsoft.Network/privateDnsZones` resource ID. |
+
+###### private_service_connection
+
+| Attribute | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | `string` | **yes** | Name of the private service connection. Must be at least 4 characters long. |
+| `is_manual_connection` | `bool` | no (default `false`) | Whether the connection requires manual approval by the remote resource owner. |
+| `private_connection_resource_id` | `string` | one of\* | Resource ID of the target Private Link enabled resource. |
+| `private_connection_resource_alias` | `string` | one of\* | Service alias of the target Private Link service. |
+| `subresource_names` | `list(string)` | no | Exactly one subresource (group ID) to connect to. Must be valid for the target resource type (e.g. `blob` for Storage Accounts, `vault` for Key Vault). Cannot be used together with `private_connection_resource_alias`. |
+| `request_message` | `string` | no | Approval request message (manual connections only, max 140 characters). |
+
+> \* Exactly one of `private_connection_resource_id` or `private_connection_resource_alias` must be set.
+
+###### ip_configurations
+
+| Attribute | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | `string` | no | Name of the IP configuration. Auto-generated as `<endpoint-name>-ipconfig-<index>` if omitted. Must be unique and non-empty when set. |
+| `private_ip_address` | `string` | **yes** | Static private IPv4 address to assign. Must be a valid IPv4 address and unique across all entries. |
+| `subresource_name` | `string` | no | The subresource this IP address applies to. Must match a value already present in `private_service_connection.subresource_names`. |
+
+##### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `private_endpoint` | `object` | The full `azurerm_private_endpoint` resource object. Useful attributes include `.id`, `.name`, `.private_service_connection[0].private_ip_address`, `.network_interface[0].id`, and `.custom_dns_configs`. |
+
+##### Usage
+
+```hcl
+module "private_endpoint" {
+  source = "path/to/azure/terraform-azurerm-private-endpoint"
+
+  name                = "pe-my-storage"
+  resource_group_name = "my-resource-group"
+  location            = "uksouth"
+  subnet_id           = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Network/virtualNetworks/my-vnet/subnets/pe-subnet"
+
+  private_service_connection = {
+    name                           = "pe-my-storage-conn"
+    private_connection_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Storage/storageAccounts/mystorageaccount"
+    subresource_names              = ["blob"]
+  }
+
+  private_dns_zone_group = {
+    name                 = "pe-my-storage-dns"
+    private_dns_zone_ids = ["/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"]
+  }
+}
+
+output "private_endpoint_ip" {
+  value = module.private_endpoint.private_endpoint.private_service_connection[0].private_ip_address
+}
+```
+
+##### Examples
+
+**Connect to a Storage Account blob endpoint**
+
+```hcl
+module "pe_storage_blob" {
+  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-private-endpoint"
+
+  name                = "pe-storage-blob"
+  resource_group_name = "example-rg"
+  location            = "uksouth"
+  subnet_id           = data.azurerm_subnet.pe.id
+
+  private_service_connection = {
+    name                           = "pe-storage-blob-conn"
+    private_connection_resource_id = azurerm_storage_account.example.id
+    subresource_names              = ["blob"]
+  }
+
+  private_dns_zone_group = {
+    name                 = "pe-storage-blob-dns"
+    private_dns_zone_ids = [azurerm_private_dns_zone.blob.id]
+  }
+}
+```
+
+**Connect to a Key Vault using manual approval**
+
+```hcl
+module "pe_keyvault" {
+  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-private-endpoint"
+
+  name                = "pe-keyvault"
+  resource_group_name = "example-rg"
+  location            = "uksouth"
+  subnet_id           = data.azurerm_subnet.pe.id
+
+  private_service_connection = {
+    name                           = "pe-keyvault-conn"
+    private_connection_resource_id = azurerm_key_vault.example.id
+    subresource_names              = ["vault"]
+    is_manual_connection           = true
+    request_message                = "Requesting access for platform team"
+  }
+}
+```
+
+**Connect via Private Link service alias with static IP**
+
+```hcl
+module "pe_alias" {
+  source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-private-endpoint"
+
+  name                = "pe-alias"
+  resource_group_name = "example-rg"
+  location            = "uksouth"
+  subnet_id           = data.azurerm_subnet.pe.id
+
+  private_service_connection = {
+    name                              = "pe-alias-conn"
+    private_connection_resource_alias = "example-privatelinkservice.d20286c8-4ea5-11eb-9584-8f53157226c6.centralus.azure.privatelinkservice"
+    is_manual_connection              = true
+    request_message                   = "PL"
+  }
+
+  ip_configurations = [
+    {
+      name               = "pe-alias-ipconfig-0"
+      private_ip_address = "10.0.1.10"
+    }
+  ]
+}
+```
+
+---
 
 #### terraform-azurerm-role-assignment
 
