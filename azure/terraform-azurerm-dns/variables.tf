@@ -28,6 +28,12 @@ variable "dns_zones" {
   }
 }
 
+variable "auto_subdomain_delegation" {
+  description = "Whether to automatically create NS records in parent zones for subdomain delegation. Only applies to public zones. Default is true."
+  type        = bool
+  default     = true
+}
+
 variable "vnet_links" {
   description = "List of virtual network links to create for private DNS zones."
   type = list(object({

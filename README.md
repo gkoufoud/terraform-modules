@@ -254,6 +254,21 @@ record collections
 
 Each list item is keyed deterministically from the zone or record attributes, which makes plans stable when managing multiple zones and records in the same module call.
 
+##### Subdomain Delegation
+
+The module automatically discovers parent-child relationships between DNS zones and exposes them via the `parent_zones` local. This facilitates subdomain delegation by identifying which zones are direct subdomains of managed zones. This behavior is **enabled by default** but can be disabled by setting `auto_subdomain_delegation` to `false`.
+
+The `parent_zones` local is a map with keys in the format `<resource_group_name>/<zone_name>` pointing to values in the format `<parent_resource_group_name>/<parent_zone_name>`. Only first-level parent relationships are discovered and included.
+
+**Example:** If you manage both `example.com` and `app.example.com` as zones, the `parent_zones` local will include the entry:
+```
+"myresourcegroup/app.example.com" = "myresourcegroup/example.com"
+```
+
+This mapping can be used to programmatically generate NS records for subdomain delegation. For instance, you can iterate over `local.parent_zones` to create NS records in parent zones pointing to the nameservers of their child zones. See the commented example in `locals.tf` for a reference implementation.
+
+To opt out of automatic parent zone discovery, set `auto_subdomain_delegation = false` when invoking the module.
+
 ##### Requirements
 
 | Name | Version |
@@ -267,6 +282,7 @@ Each list item is keyed deterministically from the zone or record attributes, wh
 | Name | Type | Default | Required | Description |
 |------|------|---------|----------|-------------|
 | `dns_zones` | `list(object(...))` | `[]` | no | DNS zones to create. Each object requires `name` and `resource_group_name`, and supports `zone_type` (`public` or `private`), `dns_sec_enabled` (public only), optional `soa_record`, and `tags`. |
+| `auto_subdomain_delegation` | `bool` | `true` | no | Whether to automatically discover and track parent-child relationships between DNS zones for subdomain delegation. |
 | `vnet_links` | `list(object(...))` | `[]` | no | Virtual network links for private DNS zones. Each object requires `name`, `private_dns_zone_name`, `resource_group_name`, and `virtual_network_id`, and supports `registration_enabled`, `resolution_policy` (`Default` or `NxDomainRedirect`), and `tags`. |
 | `a_records` | `list(object(...))` | `[]` | no | `A` records for public or private zones. Each object requires `name`, `zone_name`, and `resource_group_name`, and supports `zone_type`, `ttl`, either `records` or `target_resource_id` (public only), and `tags`. |
 | `cname_records` | `list(object(...))` | `[]` | no | `CNAME` records for public or private zones. Each object requires `name`, `zone_name`, `resource_group_name`, and `record`, and supports `zone_type`, `ttl`, optional `target_resource_id` (public only), and `tags`. |

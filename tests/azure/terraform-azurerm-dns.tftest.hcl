@@ -353,6 +353,241 @@ run "test_zones" {
   }
 }
 
+run "test_subdomain_delegation" {
+  variables {
+    dns_zones = [
+      {
+        name                = "myzone10.com"
+        resource_group_name = "myresourcegroup"
+      },
+      {
+        name                = "myzone20.com"
+        resource_group_name = "myresourcegroup2"
+      },
+      {
+        name                = "subdomain1.myzone20.com"
+        resource_group_name = "myresourcegroup3"
+      },
+      {
+        name                = "subdomain2.myzone20.com"
+        resource_group_name = "myresourcegroup4"
+      },
+      {
+        name                = "sub1.subdomain1.myzone20.com"
+        resource_group_name = "myresourcegroup3"
+      },
+    ]
+  }
+
+  override_resource {
+    target = azurerm_dns_zone.public_zone["myresourcegroup_myzone10.com"]
+    values = {
+      id           = "myresourcegroup_myzone10.com"
+      name_servers = ["ns1.myzone10.com", "ns2.myzone10.com", "ns3.myzone10.com", "ns4.myzone10.com"]
+    }
+  }
+
+  override_resource {
+    target = azurerm_dns_zone.public_zone["myresourcegroup2_myzone20.com"]
+    values = {
+      id           = "myresourcegroup2_myzone20.com"
+      name_servers = ["ns1.myzone20.com", "ns2.myzone20.com", "ns3.myzone20.com", "ns4.myzone20.com"]
+    }
+  }
+
+  override_resource {
+    target = azurerm_dns_zone.public_zone["myresourcegroup4_subdomain2.myzone20.com"]
+    values = {
+      id           = "myresourcegroup4_subdomain2.myzone20.com"
+      name_servers = ["ns1.subdomain2.myzone20.com", "ns2.subdomain2.myzone20.com", "ns3.subdomain2.myzone20.com", "ns4.subdomain2.myzone20.com"]
+    }
+  }
+
+  override_resource {
+    target = azurerm_dns_zone.public_zone["myresourcegroup3_subdomain1.myzone20.com"]
+    values = {
+      id           = "myresourcegroup3_subdomain1.myzone20.com"
+      name_servers = ["ns1.subdomain1.myzone20.com", "ns2.subdomain1.myzone20.com", "ns3.subdomain1.myzone20.com", "ns4.subdomain1.myzone20.com"]
+    }
+  }
+
+  override_resource {
+    target = azurerm_dns_zone.public_zone["myresourcegroup3_sub1.subdomain1.myzone20.com"]
+    values = {
+      id           = "myresourcegroup3_sub1.subdomain1.myzone20.com"
+      name_servers = ["ns1.sub1.subdomain1.myzone20.com", "ns2.sub1.subdomain1.myzone20.com", "ns3.sub1.subdomain1.myzone20.com", "ns4.sub1.subdomain1.myzone20.com"]
+    }
+  }
+
+  override_resource {
+    target = azurerm_dns_ns_record.ns_record["myresourcegroup2-myzone20.com-myresourcegroup3/subdomain1"]
+    values = {
+      id   = "myresourcegroup2-myzone20.com-myresourcegroup3/subdomain1"
+      fqdn = "subdomain1.myzone20.com"
+    }
+  }
+
+  override_resource {
+    target = azurerm_dns_ns_record.ns_record["myresourcegroup2-myzone20.com-myresourcegroup4/subdomain2"]
+    values = {
+      id   = "myresourcegroup2-myzone20.com-myresourcegroup4/subdomain2"
+      fqdn = "subdomain2.myzone20.com"
+    }
+  }
+
+  override_resource {
+    target = azurerm_dns_ns_record.ns_record["myresourcegroup3-subdomain1.myzone20.com-myresourcegroup3/sub1"]
+    values = {
+      id   = "myresourcegroup3-subdomain1.myzone20.com-myresourcegroup3/sub1"
+      fqdn = "sub1.subdomain1.myzone20.com"
+    }
+  }
+
+  module {
+    source = "../../azure/terraform-azurerm-dns"
+  }
+
+  assert {
+    condition = jsonencode(output.public_dns_zones) == jsonencode({
+      "myresourcegroup2_myzone20.com" = {
+        id                        = "myresourcegroup2_myzone20.com"
+        max_number_of_record_sets = 0
+        name                      = "myzone20.com"
+        name_servers = [
+          "ns1.myzone20.com",
+          "ns2.myzone20.com",
+          "ns3.myzone20.com",
+          "ns4.myzone20.com",
+        ]
+        number_of_record_sets = 0
+        resource_group_name   = "myresourcegroup2"
+        soa_record            = []
+        tags                  = {}
+        timeouts              = null
+      }
+      "myresourcegroup3_sub1.subdomain1.myzone20.com" = {
+        id                        = "myresourcegroup3_sub1.subdomain1.myzone20.com"
+        max_number_of_record_sets = 0
+        name                      = "sub1.subdomain1.myzone20.com"
+        name_servers = [
+          "ns1.sub1.subdomain1.myzone20.com",
+          "ns2.sub1.subdomain1.myzone20.com",
+          "ns3.sub1.subdomain1.myzone20.com",
+          "ns4.sub1.subdomain1.myzone20.com",
+        ]
+        number_of_record_sets = 0
+        resource_group_name   = "myresourcegroup3"
+        soa_record            = []
+        tags                  = {}
+        timeouts              = null
+      }
+      "myresourcegroup3_subdomain1.myzone20.com" = {
+        id                        = "myresourcegroup3_subdomain1.myzone20.com"
+        max_number_of_record_sets = 0
+        name                      = "subdomain1.myzone20.com"
+        name_servers = [
+          "ns1.subdomain1.myzone20.com",
+          "ns2.subdomain1.myzone20.com",
+          "ns3.subdomain1.myzone20.com",
+          "ns4.subdomain1.myzone20.com",
+        ]
+        number_of_record_sets = 0
+        resource_group_name   = "myresourcegroup3"
+        soa_record            = []
+        tags                  = {}
+        timeouts              = null
+      }
+      "myresourcegroup4_subdomain2.myzone20.com" = {
+        id                        = "myresourcegroup4_subdomain2.myzone20.com"
+        max_number_of_record_sets = 0
+        name                      = "subdomain2.myzone20.com"
+        name_servers = [
+          "ns1.subdomain2.myzone20.com",
+          "ns2.subdomain2.myzone20.com",
+          "ns3.subdomain2.myzone20.com",
+          "ns4.subdomain2.myzone20.com",
+        ]
+        number_of_record_sets = 0
+        resource_group_name   = "myresourcegroup4"
+        soa_record            = []
+        tags                  = {}
+        timeouts              = null
+      }
+      "myresourcegroup_myzone10.com" = {
+        id                        = "myresourcegroup_myzone10.com"
+        max_number_of_record_sets = 0
+        name                      = "myzone10.com"
+        name_servers = [
+          "ns1.myzone10.com",
+          "ns2.myzone10.com",
+          "ns3.myzone10.com",
+          "ns4.myzone10.com",
+        ]
+        number_of_record_sets = 0
+        resource_group_name   = "myresourcegroup"
+        soa_record            = []
+        tags                  = {}
+        timeouts              = null
+      }
+    })
+    error_message = "bad values"
+  }
+
+  assert {
+    condition = jsonencode(output.ns_records) == jsonencode({
+      "myresourcegroup2-myzone20.com-myresourcegroup3/subdomain1" = {
+        fqdn = "subdomain1.myzone20.com"
+        id   = "myresourcegroup2-myzone20.com-myresourcegroup3/subdomain1"
+        name = "myresourcegroup3/subdomain1"
+        records = [
+          "ns1.myzone20.com",
+          "ns2.myzone20.com",
+          "ns3.myzone20.com",
+          "ns4.myzone20.com",
+        ]
+        resource_group_name = "myresourcegroup2"
+        tags                = {}
+        ttl                 = 3600
+        timeouts            = null
+        zone_name           = "myzone20.com"
+      }
+      "myresourcegroup2-myzone20.com-myresourcegroup4/subdomain2" = {
+        fqdn = "subdomain2.myzone20.com"
+        id   = "myresourcegroup2-myzone20.com-myresourcegroup4/subdomain2"
+        name = "myresourcegroup4/subdomain2"
+        records = [
+          "ns1.myzone20.com",
+          "ns2.myzone20.com",
+          "ns3.myzone20.com",
+          "ns4.myzone20.com",
+        ]
+        resource_group_name = "myresourcegroup2"
+        tags                = {}
+        ttl                 = 3600
+        timeouts            = null
+        zone_name           = "myzone20.com"
+      }
+      "myresourcegroup3-subdomain1.myzone20.com-myresourcegroup3/sub1" = {
+        fqdn = "sub1.subdomain1.myzone20.com"
+        id   = "myresourcegroup3-subdomain1.myzone20.com-myresourcegroup3/sub1"
+        name = "myresourcegroup3/sub1"
+        records = [
+          "ns1.subdomain1.myzone20.com",
+          "ns2.subdomain1.myzone20.com",
+          "ns3.subdomain1.myzone20.com",
+          "ns4.subdomain1.myzone20.com",
+        ]
+        resource_group_name = "myresourcegroup3"
+        tags                = {}
+        ttl                 = 3600
+        timeouts            = null
+        zone_name           = "subdomain1.myzone20.com"
+      }
+    })
+    error_message = "bad values"
+  }
+}
+
 run "caa_records" {
   variables {
     caa_records = [
