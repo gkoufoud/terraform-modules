@@ -162,7 +162,7 @@ resource "azurerm_private_dns_mx_record" "private_mx_record" {
 
 resource "azurerm_dns_ns_record" "ns_record" {
   for_each = {
-    for record in var.ns_records :
+    for record in local.ns_records :
     "${record.resource_group_name}-${record.zone_name}-${record.name}" => record
   }
   name                = each.value.name

@@ -1,5 +1,7 @@
 module "dns_example" {
+
   source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-dns"
+
   dns_zones = [
     {
       name                = "myzone.com"
@@ -79,24 +81,28 @@ module "dns_example" {
 }
 
 module "dns_example_subdomain" {
+
   source = "git::https://github.com/gkoufoud/terraform-modules.git//azure/terraform-azurerm-dns"
+
   dns_zones = [
     {
       name                = "myzone2.com"
       resource_group_name = "myresourcegroup"
     },
     {
-      name                = "subdomain.myzone2.com"
+      name                = "subdomain1.myzone2.com"
       resource_group_name = "myresourcegroup"
       zone_type           = "public"
-    }
-  ]
-  ns_records = [
+    },
     {
-      name                = "subdomain"
-      zone_name           = "myzone2.com"
+      name                = "subdomain2.myzone2.com"
       resource_group_name = "myresourcegroup"
-      records             = module.dns_example_subdomain.public_dns_zones["myresourcegroup_subdomain.myzone2.com"].name_servers
+      zone_type           = "public"
+    },
+    {
+      name                = "sub1.subdomain2.myzone2.com"
+      resource_group_name = "myresourcegroup"
+      zone_type           = "public"
     }
   ]
 }
